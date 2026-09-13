@@ -1,0 +1,23 @@
+info:
+  name: 04 - AtualizarProduto
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:5050/api/produtos/1
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Camiseta Branca",
+        "disponivel": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
