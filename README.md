@@ -84,4 +84,4 @@ Foram realizados testes de GET, GET por ID, POST, PUT e DELETE, além do teste d
 
 Link do vídeo:
 
-`COLOCAR LINK DO VÍDEO AQUI`
+`https://www.youtube.com/watch?v=TvApU68wjiA`
