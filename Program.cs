@@ -1,90 +1,63 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
 var app = builder.Build();
 
-var produtos = new List<Produto>
-{
-    new Produto(1, "Camiseta Preta", true),
-    new Produto(2, "Calça Jeans", false)
-};
 
+// Rota inicial
 app.MapGet("/", () => "API da Loja está no ar!");
 
-app.MapGet("/api/produtos", () =>
+
+// CREATE - Cadastrar produto no banco
+app.MapPost("/api/produtos", async (LojaDeRoupaEntity produto, ApiDbContext db) =>
 {
-    return Results.Ok(produtos);
-});
+    db.Produtos.Add(produto);
 
-app.MapGet("/api/produtos/{id:int}", (int id) =>
-{
-    var produtoEncontrado = produtos.Find(produto => produto.id == id);
-
-    if (produtoEncontrado is null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(produtoEncontrado);
-});
-
-app.MapPost("/api/produtos", (ProdutoEntradaDTO dados) =>
-{
-    int proximoId = produtos.Count + 1;
-
-    var novoProduto = new Produto(
-        proximoId,
-        dados.nome,
-        dados.disponivel
-    );
-
-    produtos.Add(novoProduto);
+    await db.SaveChangesAsync();
 
     return Results.Created(
-        $"/api/produtos/{novoProduto.id}",
-        novoProduto
+        $"/api/produtos/{produto.id}",
+        produto
     );
 });
 
-app.MapPut("/api/produtos/{id:int}", (int id, ProdutoEntradaDTO dados) =>
+
+// READ - Listar produtos do banco
+app.MapGet("/api/produtos", async (ApiDbContext db) =>
 {
-    int indice = produtos.FindIndex(produtoDaLista => produtoDaLista.id == id);
-
-    if (indice == -1)
-    {
-        return Results.NotFound();
-    }
-
-    var atualizado = new Produto(
-        id,
-        dados.nome,
-        dados.disponivel
-    );
-
-    produtos[indice] = atualizado;
-
-    return Results.Ok(atualizado);
+    return await db.Produtos.ToListAsync();
 });
 
-app.MapDelete("/api/produtos/{id:int}", (int id) =>
-{
-    int indice = produtos.FindIndex(produtoDaLista => produtoDaLista.id == id);
-
-    if (indice == -1)
-    {
-        return Results.NotFound();
-    }
-
-    produtos.RemoveAt(indice);
-
-    return Results.NoContent();
-});
 
 app.Run();
 
 
-record Produto(int id, string nome, bool disponivel);
+// Model
+class LojaDeRoupaEntity
+{
+    public int id { get; set; }
 
-//aqui temos o DTO completo com id
-record ProdutoDTO(int id, string nome, bool disponivel);
+    public string Nome { get; set; }
 
-//e aqui o DTO de entrada sem id
-record ProdutoEntradaDTO(string nome, bool disponivel);
+    public string Data { get; set; }
+
+    public string Tipo { get; set; }
+}
+
+
+// Banco de dados
+class ApiDbContext : DbContext
+{
+    public ApiDbContext(DbContextOptions<ApiDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<LojaDeRoupaEntity> Produtos => Set<LojaDeRoupaEntity>();
+}
