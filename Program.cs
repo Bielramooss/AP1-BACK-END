@@ -9,12 +9,11 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 
 var app = builder.Build();
 
+// Configuração para abrir o frontend da pasta wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-// Rota inicial
-app.MapGet("/", () => "API da Loja está no ar!");
-
-
-// CREATE - Cadastrar produto no banco
+// CREATE - Cadastrar produto
 app.MapPost("/api/produtos", async (LojaDeRoupaEntity produto, ApiDbContext db) =>
 {
     db.Produtos.Add(produto);
@@ -27,16 +26,62 @@ app.MapPost("/api/produtos", async (LojaDeRoupaEntity produto, ApiDbContext db) 
     );
 });
 
-
-// READ - Listar produtos do banco
+// READ - Listar produtos
 app.MapGet("/api/produtos", async (ApiDbContext db) =>
 {
     return await db.Produtos.ToListAsync();
 });
 
+// READ - Buscar produto por ID
+app.MapGet("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
+{
+    var produto = await db.Produtos.FindAsync(id);
+
+    if (produto is null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(produto);
+});
+
+// UPDATE - Atualizar produto
+app.MapPut("/api/produtos/{id:int}", async (int id, LojaDeRoupaEntity entrada, ApiDbContext db) =>
+{
+    var produto = await db.Produtos.FindAsync(id);
+
+    if (produto is null)
+    {
+        return Results.NotFound();
+    }
+
+    produto.Nome = entrada.Nome;
+    produto.Data = entrada.Data;
+    produto.Tipo = entrada.Tipo;
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(produto);
+});
+
+// DELETE - Excluir produto
+app.MapDelete("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
+{
+    var produto = await db.Produtos.FindAsync(id);
+
+    if (produto is null)
+    {
+        return Results.NotFound();
+    }
+
+    db.Produtos.Remove(produto);
+
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
 
 app.Run();
-
 
 // Model
 class LojaDeRoupaEntity
@@ -49,7 +94,6 @@ class LojaDeRoupaEntity
 
     public string Tipo { get; set; }
 }
-
 
 // Banco de dados
 class ApiDbContext : DbContext

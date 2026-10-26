@@ -1,2 +1,8 @@
+# Banco de dados SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Arquivos gerados pelo .NET
 bin/
 obj/

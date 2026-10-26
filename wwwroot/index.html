@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja de Roupas - Gerenciamento AP1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Alerta Informativo de Integração com API -->
+  <aside class="demo-banner" role="region" aria-label="Status da API">
+    <div class="banner-content">
+      <span class="badge">API CONECTADA</span>
+      <p>
+        Interface integrada à API REST da Loja de Roupas (<code>/api/produtos</code>).
+      </p>
+    </div>
+  </aside>
+
+  <!-- Cabeçalho Responsivo -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <span class="logo-icon" aria-hidden="true">👕</span>
+        <div>
+          <h1>Loja de Roupas</h1>
+          <p class="subtitle">Gerenciamento de Catálogo &bull; AP1</p>
+        </div>
+      </div>
+      <div class="header-tags">
+        <span class="tag">Entidade: LojaDeRoupaEntity</span>
+        <span class="tag">Armazenamento: Banco SQLite (API)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal Adaptável -->
+  <main class="main-content">
+    <!-- Feedback visual dinâmico com suporte a leitores de tela -->
+    <div id="feedback-message" class="feedback-alert" role="status" aria-live="polite" hidden></div>
+
+    <div class="grid-layout">
+      <!-- Painel do Formulário (Visualizar, Adicionar, Editar) -->
+      <section class="card form-panel" aria-labelledby="form-heading">
+        <div class="card-header">
+          <div>
+            <h2 id="form-heading">Cadastrar Nova Roupa</h2>
+            <p class="section-desc">Preencha os dados da peça para registrar no catálogo da loja</p>
+          </div>
+          <span id="form-mode-badge" class="badge-mode">Novo Registro</span>
+        </div>
+
+        <form id="clothing-form" novalidate>
+          <input type="hidden" id="clothing-id" value="">
+
+          <div class="form-group">
+            <label for="clothing-name">Nome da Roupa / Peça <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="clothing-name" 
+              name="nome" 
+              placeholder="Ex.: Camiseta Oversized Preta" 
+              required 
+              autocomplete="off"
+            >
+            <span class="field-help">Informe o nome descritivo do produto</span>
+          </div>
+
+          <div class="form-row-responsive">
+            <div class="form-group">
+              <label for="clothing-type">Tipo / Categoria <span class="required">*</span></label>
+              <select id="clothing-type" name="tipo" required>
+                <option value="" disabled selected>Selecione um tipo...</option>
+                <option value="Camiseta">Camiseta</option>
+                <option value="Camisa">Camisa</option>
+                <option value="Moletom">Moletom</option>
+                <option value="Calça">Calça</option>
+                <option value="Bermuda">Bermuda</option>
+                <option value="Jaqueta">Jaqueta</option>
+                <option value="Vestido">Vestido</option>
+                <option value="Acessório">Acessório</option>
+              </select>
+              <span class="field-help">Categoria da peça</span>
+            </div>
+
+            <div class="form-group">
+              <label for="clothing-date">Data de Cadastro <span class="required">*</span></label>
+              <input 
+                type="date" 
+                id="clothing-date" 
+                name="data" 
+                required
+              >
+              <span class="field-help">Data de registro</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-submit" class="btn btn-primary">
+              <span id="submit-btn-text">Cadastrar Roupa</span>
+            </button>
+            <button type="button" id="btn-cancel" class="btn btn-secondary" hidden>
+              Cancelar Edição
+            </button>
+          </div>
+        </form>
+
+        <div class="demo-controls">
+          <button type="button" id="btn-reload-list" class="btn btn-outline">
+            Recarregar Catálogo da API
+          </button>
+        </div>
+      </section>
+
+      <!-- Painel de Catálogo e Listagem -->
+      <section class="card list-panel" aria-labelledby="list-heading">
+        <div class="card-header list-header">
+          <div>
+            <h2 id="list-heading">Catálogo de Roupas</h2>
+            <p class="section-desc">Visualização e gerenciamento das peças</p>
+          </div>
+          <div class="counter-badge">
+            <span id="total-count">0</span> peça(s)
+          </div>
+        </div>
+
+        <!-- Barra de Busca e Filtro Local -->
+        <div class="filter-bar">
+          <div class="filter-group filter-search">
+            <label for="search-input">Pesquisar por nome:</label>
+            <input 
+              type="search" 
+              id="search-input" 
+              placeholder="Digite o nome da peça..."
+              autocomplete="off"
+            >
+          </div>
+          <div class="filter-group filter-select">
+            <label for="filter-type">Filtrar por tipo:</label>
+            <select id="filter-type">
+              <option value="todos">Todos os tipos</option>
+              <option value="Camiseta">Camiseta</option>
+              <option value="Camisa">Camisa</option>
+              <option value="Moletom">Moletom</option>
+              <option value="Calça">Calça</option>
+              <option value="Bermuda">Bermuda</option>
+              <option value="Jaqueta">Jaqueta</option>
+              <option value="Vestido">Vestido</option>
+              <option value="Acessório">Acessório</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Estado de Carregamento -->
+        <div id="loading-state" class="empty-state" hidden>
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <h3>Carregando catálogo...</h3>
+          <p>Aguarde enquanto as roupas são obtidas da API.</p>
+        </div>
+
+        <!-- Tabela Responsiva com adaptação automática para Cartões em telas menores -->
+        <div id="table-container" class="table-container" tabindex="0" role="region" aria-label="Tabela de Roupas Cadastradas">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col" class="th-id">ID</th>
+                <th scope="col" class="th-name">Nome da Peça</th>
+                <th scope="col" class="th-type">Tipo</th>
+                <th scope="col" class="th-date">Data</th>
+                <th scope="col" class="th-actions">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="clothes-tbody">
+              <!-- Linhas geradas dinamicamente via app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Estado vazio amigável -->
+        <div id="empty-state" class="empty-state" hidden>
+          <div class="empty-icon" aria-hidden="true">📦</div>
+          <h3>Nenhuma roupa encontrada</h3>
+          <p id="empty-message">Cadastre uma nova peça utilizando o formulário ou limpe os filtros de busca.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>&copy; 2026 - Loja de Roupas &bull; Interface Integrada à API &bull; HTML, CSS e JavaScript puros.</p>
+  </footer>
+
+  <!-- Modal Acessível de Confirmação de Exclusão -->
+  <dialog id="delete-dialog" class="custom-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-content">
+      <h3 id="dialog-title">Confirmar Exclusão</h3>
+      <p id="dialog-message">Tem certeza que deseja remover esta peça da loja?</p>
+      <div class="dialog-actions">
+        <button type="button" id="btn-confirm-delete" class="btn btn-danger">Sim, Excluir</button>
+        <button type="button" id="btn-cancel-delete" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
