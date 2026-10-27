@@ -1,11 +1,11 @@
 info:
-  name: 05 - DeletarProduto
+  name: 00 - API no ar
   type: http
-  seq: 5
+  seq: 1
 
 http:
-  method: DELETE
-  url: http://localhost:5050/api/produtos/2
+  method: GET
+  url: http://localhost:5134/
   auth: inherit
 
 settings:

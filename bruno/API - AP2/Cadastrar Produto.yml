@@ -1,7 +1,7 @@
 info:
-  name: 03 - CriarProduto
+  name: Cadastrar Produto
   type: http
-  seq: 3
+  seq: 8
 
 http:
   method: POST
@@ -10,8 +10,10 @@ http:
     type: json
     data: |-
       {
-        "nome": "Moletom Azul",
-        "disponivel": true
+        "id": 1,
+        "nome": "Camiseta Preta",
+        "data": "06/10/2026",
+        "tipo": "Camiseta"
       }
   auth: inherit
 

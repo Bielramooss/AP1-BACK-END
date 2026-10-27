@@ -5,13 +5,14 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:5050/api/produtos/1
+  url: http://localhost:5134/api/produtos/18
   body:
     type: json
     data: |-
       {
-        "nome": "Camiseta Branca",
-        "disponivel": true
+        "nome": "Camiseta Verde",
+        "data": "26/10/2026",
+        "tipo": "Camiseta"
       }
   auth: inherit
 
