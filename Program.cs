@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,21 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     ));
 
 var app = builder.Build();
+
+// Middleware para tratamento centralizado de exceções
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            mensagem = "Ocorreu um erro interno. Tente novamente mais tarde."
+        });
+    });
+});
 
 // Configuração para abrir o frontend da pasta wwwroot
 app.UseDefaultFiles();
@@ -80,6 +96,7 @@ app.MapDelete("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
 
     return Results.NoContent();
 });
+
 
 app.Run();
 
