@@ -4,7 +4,7 @@ using ApiLojaDeRoupa.Models;
 
 namespace ApiLojaDeRoupa.Data;
 
-class ApiDbContext : DbContext
+public class ApiDbContext : DbContext
 {
     public ApiDbContext(DbContextOptions<ApiDbContext> options)
         : base(options)

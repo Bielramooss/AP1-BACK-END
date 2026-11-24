@@ -1,7 +1,7 @@
 
 namespace ApiLojaDeRoupa.Models;
 
-class LojaDeRoupaEntity
+public class LojaDeRoupaEntity
 {
     public int id { get; set; }
 
