@@ -1,5 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
+using ApiLojaDeRoupa.Models;
+using ApiLojaDeRoupa.Dtos;
+using ApiLojaDeRoupa.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +13,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 
 var app = builder.Build();
 
-// Middleware para tratamento centralizado de exceções
+
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -25,13 +28,20 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Configuração para abrir o frontend da pasta wwwroot
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// CREATE - Cadastrar produto
-app.MapPost("/api/produtos", async (LojaDeRoupaEntity produto, ApiDbContext db) =>
+
+app.MapPost("/api/produtos", async (ProdutoEntrada entrada, ApiDbContext db) =>
 {
+    var produto = new LojaDeRoupaEntity
+    {
+        Nome = entrada.Nome,
+        Data = entrada.Data,
+        Tipo = entrada.Tipo
+    };
+
     db.Produtos.Add(produto);
 
     await db.SaveChangesAsync();
@@ -42,13 +52,13 @@ app.MapPost("/api/produtos", async (LojaDeRoupaEntity produto, ApiDbContext db) 
     );
 });
 
-// READ - Listar produtos
+
 app.MapGet("/api/produtos", async (ApiDbContext db) =>
 {
     return await db.Produtos.ToListAsync();
 });
 
-// READ - Buscar produto por ID
+
 app.MapGet("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
 {
     var produto = await db.Produtos.FindAsync(id);
@@ -61,8 +71,8 @@ app.MapGet("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
     return Results.Ok(produto);
 });
 
-// UPDATE - Atualizar produto
-app.MapPut("/api/produtos/{id:int}", async (int id, LojaDeRoupaEntity entrada, ApiDbContext db) =>
+
+app.MapPut("/api/produtos/{id:int}", async (int id, ProdutoEntrada entrada, ApiDbContext db) =>
 {
     var produto = await db.Produtos.FindAsync(id);
 
@@ -80,7 +90,7 @@ app.MapPut("/api/produtos/{id:int}", async (int id, LojaDeRoupaEntity entrada, A
     return Results.Ok(produto);
 });
 
-// DELETE - Excluir produto
+
 app.MapDelete("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
 {
     var produto = await db.Produtos.FindAsync(id);
@@ -97,28 +107,4 @@ app.MapDelete("/api/produtos/{id:int}", async (int id, ApiDbContext db) =>
     return Results.NoContent();
 });
 
-
 app.Run();
-
-// Model
-class LojaDeRoupaEntity
-{
-    public int id { get; set; }
-
-    public string Nome { get; set; }
-
-    public string Data { get; set; }
-
-    public string Tipo { get; set; }
-}
-
-// Banco de dados
-class ApiDbContext : DbContext
-{
-    public ApiDbContext(DbContextOptions<ApiDbContext> options)
-        : base(options)
-    {
-    }
-
-    public DbSet<LojaDeRoupaEntity> Produtos => Set<LojaDeRoupaEntity>();
-}

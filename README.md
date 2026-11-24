@@ -2,21 +2,70 @@
 
 ## Sobre o projeto
 
-Este projeto foi desenvolvido para a AP1 e atualizado para a AP2 da disciplina.
+Este projeto foi desenvolvido para as avaliações AP1 e AP2 da disciplina de Desenvolvimento Back-End.
 
 A aplicação representa uma loja de roupas e permite cadastrar, listar, buscar, atualizar e excluir produtos.
 
 O projeto utiliza C#, ASP.NET Core, .NET 10, Minimal API, Entity Framework Core e SQLite. Também possui uma interface web integrada à API, localizada na pasta `wwwroot`.
 
-## Requisitos
+## Tecnologias utilizadas
 
-Para executar o projeto, é necessário ter instalado:
+- C#
+- ASP.NET Core
+- .NET 10
+- Minimal API
+- Entity Framework Core
+- SQLite
+- HTML, CSS e JavaScript
+- Bruno para testes da API
 
-- .NET 10 SDK
-- Git (opcional, para clonar o repositório)
-- Bruno (opcional, para testar os endpoints)
+## Organização do projeto
+
+O projeto está organizado da seguinte forma:
+
+```text
+ApiLojaDeRoupa/
+│
+├── Data/
+│   └── ApiDbContext.cs
+│
+├── Dtos/
+│   └── ProdutoEntrada.cs
+│
+├── Models/
+│   └── LojaDeRoupaEntity.cs
+│
+├── Migrations/
+│
+├── Properties/
+│
+├── bruno/
+│
+├── wwwroot/
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
+│
+├── Program.cs
+├── ApiLojaDeRoupa.csproj
+├── appsettings.json
+└── README.md
+```
+
+### Responsabilidade de cada pasta e arquivo
+
+- **Models:** contém a classe `LojaDeRoupaEntity`, responsável por representar os produtos e suas propriedades.
+- **Dtos:** contém o record `ProdutoEntrada`, responsável por receber os dados enviados nas operações de cadastro e atualização, sem incluir o identificador do produto.
+- **Data:** contém a classe `ApiDbContext`, responsável pela conexão e comunicação com o banco de dados utilizando Entity Framework Core.
+- **Migrations:** armazena as migrações responsáveis pelo controle da estrutura do banco de dados.
+- **Properties:** contém configurações de execução do projeto.
+- **bruno:** contém a Collection utilizada para testar os endpoints da API.
+- **wwwroot:** contém os arquivos da interface web, desenvolvida em HTML, CSS e JavaScript.
+- **Program.cs:** responsável pela inicialização da aplicação, configuração dos serviços, conexão com o banco, middleware e definição das rotas da API.
 
 ## Como executar
+
+Para executar o projeto, é necessário ter instalado o .NET 10 SDK.
 
 Abra o terminal na pasta do projeto e execute:
 
@@ -26,19 +75,21 @@ dotnet build
 dotnet run --urls "http://localhost:5134"
 ```
 
-Depois, abra a interface da loja no navegador:
+Depois, acesse a interface da loja pelo navegador:
 
 http://localhost:5134
 
-A API utiliza o banco de dados SQLite configurado no projeto. Se o banco ainda não tiver sido criado ou estiver sem as tabelas necessárias, aplique as migrations do Entity Framework Core antes de executar a aplicação:
+## Banco de dados
 
-```bash
-dotnet ef database update
-```
+A aplicação utiliza SQLite para armazenar os produtos e Entity Framework Core para realizar as operações no banco de dados.
 
-Para executar esse último comando, é necessário ter instalado o `dotnet-ef` e as dependências do projeto.
+A conexão é configurada no arquivo `appsettings.json`, e o contexto do banco está localizado em `Data/ApiDbContext.cs`.
 
-## Endpoints
+As migrations existentes são utilizadas para controlar a estrutura do banco de dados.
+
+Os dados cadastrados permanecem armazenados mesmo após encerrar e reiniciar a aplicação.
+
+## Endpoints da API
 
 | Método | Rota | Descrição |
 |---|---|---|
@@ -57,7 +108,7 @@ Rota: `/api/produtos`
 ```json
 {
   "nome": "Camiseta Preta",
-  "data": "2026-10-26",
+  "data": "17/11/2026",
   "tipo": "Camiseta"
 }
 ```
@@ -68,22 +119,21 @@ Rota: `/api/produtos/1`
 
 ```json
 {
-  "id": 1,
   "nome": "Camiseta Branca",
-  "data": "2026-10-26",
+  "data": "17/11/2026",
   "tipo": "Camiseta"
 }
 ```
 
-Os exemplos utilizam os campos do modelo atual. Para atualizar, substitua `1` pelo ID de um produto existente.
+O ID do produto é informado na rota, não no corpo da requisição.
 
-## Armazenamento dos dados
+## Tratamento de erros e exceções
 
-Os produtos são armazenados em um banco de dados SQLite e manipulados utilizando Entity Framework Core.
+A API possui um middleware de tratamento centralizado de exceções implementado através do `UseExceptionHandler`.
 
-Os dados cadastrados, atualizados ou excluídos são persistidos no banco. Assim, os produtos não são perdidos simplesmente ao encerrar e reiniciar a aplicação.
+Quando ocorre uma falha interna, a API retorna HTTP 500 com uma mensagem genérica em formato JSON, sem expor detalhes técnicos da exceção ao cliente.
 
-O arquivo local do banco de dados não deve ser enviado ao GitHub.
+Para produtos inexistentes, as rotas retornam HTTP 404 (Not Found), evitando transformar uma situação normal em uma exceção.
 
 ## Interface web
 
@@ -93,12 +143,17 @@ Ela permite consultar os produtos e realizar operações de cadastro, edição e
 
 ## Testes da API
 
-As requisições foram testadas utilizando o Bruno.
+As requisições são realizadas utilizando o Bruno.
 
-Foram testadas as operações de GET, GET por ID, POST, PUT e DELETE, incluindo respostas `404 Not Found` para produtos inexistentes.
+São contempladas as operações:
 
-Se a Collection do Bruno estiver incluída no repositório, ela poderá ser encontrada na pasta correspondente.
+- GET — Listagem de produtos.
+- GET por ID — Busca de produto específico.
+- POST — Cadastro de produto.
+- PUT — Atualização de produto.
+- DELETE — Exclusão de produto.
+- Verificação de respostas 404 para produtos inexistentes.
 
 ## Vídeo de demonstração — AP2
 
-Link do vídeo: **https://youtu.be/DnihBNRR_0E**
+Link do vídeo: https://youtu.be/DnihBNRR_0E
