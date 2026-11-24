@@ -154,6 +154,6 @@ São contempladas as operações:
 - DELETE — Exclusão de produto.
 - Verificação de respostas 404 para produtos inexistentes.
 
-## Vídeo de demonstração — AP2
+## Vídeo de demonstração — AS
 
-Link do vídeo: https://youtu.be/DnihBNRR_0E
+Link do vídeo: https://youtu.be/0sCJ0GtdUN8
